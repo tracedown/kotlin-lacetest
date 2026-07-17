@@ -96,7 +96,7 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         run: |
           gh release create "${{ steps.version.outputs.tag }}" \
-            --title "Lace Kotlin Conformance Harness ${{ steps.version.outputs.tag }}" \
-            --notes "Kotlin conformance test harness for Lace ${{ steps.version.outputs.tag }}. Published to Maven Central as dev.lacelang:kotlin-lacetest."
+            --title "Lace Kotlin Test Harness ${{ steps.version.outputs.tag }}" \
+            --notes "Run Lace scripts as JUnit 5 test cases. ${{ steps.version.outputs.tag }} — published to Maven Central as dev.lacelang:kotlin-lacetest."
         env:
           GH_TOKEN: ${{ github.token }}

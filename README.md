@@ -1,9 +1,13 @@
 # lacelang-kt-lacetest
 
-Kotlin conformance test harness for [Lace](https://lacelang.dev). It turns
-`.lace` scripts into test cases: a script's `expect()` outcomes become
-pass/fail, so you can drive a service — typically one spun up with
-Testcontainers — with real Lace probes and assert on the results.
+[![Maven Central](https://img.shields.io/maven-central/v/dev.lacelang/kotlin-lacetest)](https://central.sonatype.com/artifact/dev.lacelang/kotlin-lacetest)
+
+A Kotlin testing library that runs [Lace](https://lacelang.dev) probe scripts as
+JUnit 5 test cases. Point it at a directory of `.lace` scripts and a target
+service — often one spun up with Testcontainers — and each script becomes a
+test: an `expect()` failure fails the test, a `check()` failure is logged as a
+warning. Use it to write integration and unit tests with Lace scripts as the
+test source.
 
 Published to Maven Central as `dev.lacelang:kotlin-lacetest`.
 
@@ -20,7 +24,7 @@ the test; a `check()` failure is logged as a warning and the test still passes.
 
 ```kotlin
 @TestFactory
-fun conformance() =
+fun apiTests() =
     LaceTestSuite.builder()
         .scriptsDir("src/test/resources/lace")
         .baseUrl(container.baseUrl)   // e.g. a Testcontainers target
