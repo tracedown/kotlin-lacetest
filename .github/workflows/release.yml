@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    if: github.repository == 'tracedown/kotlin-lacetest'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write        # build-provenance attestation (Sigstore OIDC)
+      attestations: write    # write the attestation to the repo
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(grep '^version=' gradle.properties | cut -d= -f2)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check if already released
+        id: check
+        run: |
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-java@v4
+        if: steps.check.outputs.exists == 'false'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Publish to Maven Central
+        if: steps.check.outputs.exists == 'false'
+        run: ./gradlew publishToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+      # Attest the published jar (same bytes Central serves as
+      # kotlin-lacetest-<v>.jar). Registers the artifact digest with GitHub —
+      # a prerequisite for the storage record below.
+      - name: Attest build provenance
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: build/libs/lacelang-kt-lacetest-${{ steps.version.outputs.version }}.jar
+
+      # Link the published artifact to the org's linked-artifacts page. Requires
+      # an org token with artifact-metadata write; skipped if it isn't set.
+      - name: Record storage location
+        if: steps.check.outputs.exists == 'false'
+        continue-on-error: true   # best-effort — the artifact is already published
+        env:
+          GH_TOKEN: ${{ secrets.ORG_ARTIFACT_METADATA_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "ORG_ARTIFACT_METADATA_TOKEN not set — skipping storage record."
+            exit 0
+          fi
+          jar="build/libs/lacelang-kt-lacetest-${VERSION}.jar"
+          digest=$(sha256sum "$jar" | cut -d' ' -f1)
+          for attempt in 1 2 3 4 5 6; do
+            if gh api -X POST /orgs/tracedown/artifacts/metadata/storage-record \
+                 -H "X-GitHub-Api-Version: 2026-03-10" \
+                 -f name="kotlin-lacetest" \
+                 -f digest="sha256:${digest}" \
+                 -f registry_url="https://repo1.maven.org/maven2/dev/lacelang/kotlin-lacetest/${VERSION}/kotlin-lacetest-${VERSION}.jar"; then
+              echo "storage record created."
+              exit 0
+            fi
+            echo "attempt ${attempt}: digest not indexed yet — retrying in 30s"
+            sleep 30
+          done
+          echo "storage record not created after retries; artifact is published regardless."
+
+      - name: Create tag
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "Lace Kotlin Conformance Harness ${{ steps.version.outputs.tag }}" \
+            --notes "Kotlin conformance test harness for Lace ${{ steps.version.outputs.tag }}. Published to Maven Central as dev.lacelang:kotlin-lacetest."
+        env:
+          GH_TOKEN: ${{ github.token }}

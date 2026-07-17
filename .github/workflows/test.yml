@@ -1,0 +1,24 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    if: github.repository == 'tracedown/kotlin-lacetest' && !startsWith(github.event.pull_request.title, 'WIP:')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: ["17", "21"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+      # The validator and executor are resolved from Maven Central; the harness's
+      # own tests are Testcontainers-based, so PR CI compiles against the published
+      # artifacts rather than running the full docker suite.
+      - name: Compile
+        run: ./gradlew compileKotlin compileTestKotlin
