@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
-      # The validator and executor are resolved from Maven Central; the harness's
+      # The validator and executor are resolved from Maven Central; the library's
       # own tests are Testcontainers-based, so PR CI compiles against the published
       # artifacts rather than running the full docker suite.
       - name: Compile

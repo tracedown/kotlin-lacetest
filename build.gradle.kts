@@ -43,7 +43,7 @@ mavenPublishing {
     coordinates("dev.lacelang", "kotlin-lacetest", version.toString())
 
     pom {
-        name.set("Lace Kotlin Test Harness")
+        name.set("Lace Kotlin Testing Library")
         description.set(
             "Run Lace probe scripts as JUnit 5 test cases — use .lace scripts as the source for Kotlin integration and unit tests.",
         )
