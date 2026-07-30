@@ -12,7 +12,7 @@ test source.
 Published to Maven Central as `dev.lacelang:kotlin-lacetest`.
 
 ```kotlin
-testImplementation("dev.lacelang:kotlin-lacetest:0.1.0")
+testImplementation("dev.lacelang:kotlin-lacetest:0.1.1")
 ```
 
 ## Usage
