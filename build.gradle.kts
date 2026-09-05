@@ -19,8 +19,8 @@ dependencies {
     // `count()` / `includes()` (spec S8.1) while the validator already parsed
     // them, so a script using either one ran, evaluated the condition to null,
     // and reported a pass. Bump both together.
-    api("dev.lacelang:lacelang-kotlin-executor:0.1.6")
-    api("dev.lacelang:kotlin-validator:0.1.5")
+    api("dev.lacelang:lacelang-kotlin-executor:0.1.7")
+    api("dev.lacelang:kotlin-validator:0.1.6")
 
     api("org.junit.jupiter:junit-jupiter-api:5.11.4")
     implementation("org.junit.jupiter:junit-jupiter-engine:5.11.4")
