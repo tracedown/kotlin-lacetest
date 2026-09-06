@@ -3,7 +3,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/dev.lacelang/kotlin-lacetest)](https://central.sonatype.com/artifact/dev.lacelang/kotlin-lacetest)
 
 A Kotlin testing library that runs [Lace](https://lacelang.dev) probe scripts as
-JUnit 5 test cases. Point it at a directory of `.lace` scripts and a target
+JUnit (Jupiter 6) test cases. Point it at a directory of `.lace` scripts and a target
 service — often one spun up with Testcontainers — and each script becomes a
 test: an `expect()` failure fails the test, a `check()` failure is logged as a
 warning. Use it to write integration and unit tests with Lace scripts as the
@@ -19,7 +19,7 @@ testImplementation("dev.lacelang:kotlin-lacetest:0.1.1")
 
 Two builder-based entry points; both discover `.lace` scripts under a directory.
 
-**As JUnit 5 dynamic tests** — one test per script. An `expect()` failure fails
+**As JUnit dynamic tests** — one test per script. An `expect()` failure fails
 the test; a `check()` failure is logged as a warning and the test still passes.
 
 ```kotlin

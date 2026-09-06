@@ -22,15 +22,23 @@ dependencies {
     api("dev.lacelang:lacelang-kotlin-executor:0.1.9")
     api("dev.lacelang:kotlin-validator:0.1.6")
 
-    api("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    implementation("org.junit.jupiter:junit-jupiter-engine:5.11.4")
+    // JUnit is the consumer's choice: this library compiles against the
+    // Jupiter API but does not ship it, so a project on Jupiter 6.1 or a
+    // later minor supplies its own engine and launcher (the usual
+    // `testImplementation(platform("org.junit:junit-bom:…"))` +
+    // `junit-jupiter` + `testRuntimeOnly junit-platform-launcher`). Exporting
+    // it as `api` used to force one JUnit major on every consumer.
+    compileOnly("org.junit.jupiter:junit-jupiter-api:6.1.3")
 
-    compileOnly("org.testcontainers:testcontainers:1.20.4")
-    compileOnly("org.testcontainers:junit-jupiter:1.20.4")
+    compileOnly("org.testcontainers:testcontainers:2.0.5")
+    compileOnly("org.testcontainers:testcontainers-junit-jupiter:2.0.5")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.testcontainers:testcontainers:1.20.4")
-    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.testcontainers:testcontainers:2.0.5")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter:2.0.5")
 }
 
 tasks.test {
