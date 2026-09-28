@@ -19,8 +19,8 @@ dependencies {
     // `count()` / `includes()` (spec S8.1) while the validator already parsed
     // them, so a script using either one ran, evaluated the condition to null,
     // and reported a pass. Bump both together.
-    api("dev.lacelang:lacelang-kotlin-executor:0.1.9")
-    api("dev.lacelang:kotlin-validator:0.1.6")
+    api("dev.lacelang:lacelang-kotlin-executor:0.1.10")
+    api("dev.lacelang:kotlin-validator:0.1.7")
 
     // JUnit is the consumer's choice: this library compiles against the
     // Jupiter API but does not ship it, so a project on Jupiter 6.1 or a
